@@ -55,8 +55,7 @@ class ViewController: UIViewController {
      화면 전환은 비동기 방식으로 동작하기 때문에, 화면 전환이 완전히 끝난 후에 실행해야 할 구문이 있다면
      클로저나 함수 형식으로 작성하여 프레젠트 메소드의 세 번째 인자 값에 넣은 다음, 시스템이 알맞게 호울해 주기를 기다리는게 올바릅니다.
      
-     프레젠트 메소드를 이용한 화면 전환은 기존의 뷰 컨트롤러를 그대로 둔 채, 그 위에 해로운 뷰 컨트롤러의 화면을 덮는 방식입니다.
-     
+     프레젠트 메소드를 이용한 화면 전환은 기존의 뷰 컨트롤러를 그대로 둔 채, 그 위에 새로운 뷰 컨트롤러의 화면을 덮는 방식입니다.
      */
     
     override func viewDidLoad() {
@@ -64,6 +63,67 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
 
-
+    /* [22.07.05] 화면을 이동할 버튼 생성하기
+     화면을 이동할 메소드 moveNext()를 생성 후 화면 이동을 처리하는 코드를 작성하기에 앞서, 이동할 대상이 되는 뷰 컨트롤러를 먼저 추가해야한다.
+     
+     보조 에디터를 열어 view Controller를 추가하고 화면 구분을 위한 레이블을 추가해보자
+     
+     추가했다면 여기서
+     기존 view controller = a
+     신규 view controller = b
+     
+     b는 a와 달리 생성 직후에는 간결한 스위프트 클래스가 아니라 뭔가 다른 모습의 복잡한 소스 코드가 쓰여져 있다.....(많이 당황스러웠다)
+     
+     이유는 b에 연결된 클래스가 현재는 UIViewController 클래스 자체이기 때문이라고 한다...
+     아마 해당 view Controller는 생성 직후, 어떤 설정도 하지않았기에 복잡한 코드로 된 것이다.(추측)
+     */
+    
+    /* [22.07.05] 그렇다고 ... 화면전환 연결을 포기할 순 없다.
+     우선.. b의 스토리보드의 속성값을 이용해야한다.
+     b를 선택한 상태에서 아이덴티티 인스펙터 탭을 열고, [Identity] 영역에서 StoryBoardID 항목을 찾아 SecoundVC 라 입력해보자.
+     
+     여기서 입력한 StoryBoardID는 앞으로 b를 참조할 때 사용될 값이므로 오타가 있어서는 안된다.
+     */
+    @IBAction func moveNext(_ sender: Any) {
+        // 이제 작성된 코드를 살펴보자
+        
+        /* [22.07.05]
+         이동할 뷰 컨트롤러 객체를 StoryBoardID 정보를 이용하여 참조하는 코드
+         
+         스크린에 새로 표시할 뷰 컨트롤러를 스토리보드로부터 읽어와 인스턴스화 하는 부분이다.
+         인자값으로 입력된 StoryBoardID와 일치하는 뷰 컨트롤러를 찾아, 인스턴스를 생성하고 이 값을 받아온다.
+         
+         이때, 먼저 스토리보드 파일의 내용을 참조할 수 있어야 하는데, Main.storyboard는 self.storyboard 속성을 통해 참조할 수 있다.
+         참고로 스토리보드 객체가 참조될 때의 타입은 UIStoryBoard이다.
+         
+         여기서 문제가 될 수 있는 것이 있다.
+         만약 새롭게 생성한 스토리보드가 N개라면? (1 < N)
+         기능이나 성격에 따라 화면을 분리하다 보면 때에 따라 스토리보드 파일이 여러새 존재할 수 밖에 없다.
+         그렇기에 여러 개의 스토리보드 파일이 존재할 수 있는 상황을 상정하고 원하는 스토리보드만 선택하여 객체로 가져오려면
+         self.storyboard 속성을 사용하는 것이 아닌 여러 개의 스토리보드 파일 중에서 원하는 스토리보드를 지정할 수 다음과 같이 구문을 변경해야 한다.
+         
+         스토리보드 파일명을 인자값으로 넣어 UIStoryboard 객체를 만들어 내고, 이 객체를 self.storyboard 속성 대신 사용하는 방법이다.
+         */
+        let Main_Storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+        /* [22.07.05] 위의 코드를 분석하면?
+         초기화 구문에서 사용된 인자값 중 첫 번째 항목은 읽어 들일 스토리보드 파일명을 나타낸다.
+         스토리보드 파일이 여러 개 존재할 경우 그 중에서 사용하고자 하는 스토리보드 파일명을 넣으면 된다.
+         
+         두 번째 인자값은 스토리보드 파일을 읽어들일 위치이다.
+         bundle 이라는 이름으로 지정되는데, 완성된 앱은 성격에 맞는 파일끼리 묶어 여러 개의 bundle를 만들어 내는데
+         이 중에서 메인 번들은 앱의 주요 소스 코드 파일을 포함하고 있는 번들이다.
+         스토리보드 파일도 여기에 포함된다. 그리고 추가적으로 각종 리소스 파일을 묶어 놓은 리소스 번들도 존재한다.
+         */
+        let uvc = self.storyboard!.instantiateViewController(withIdentifier: "SecoundVC")
+        
+        /*
+         */
+        uvc.modalTransitionStyle = UIModalTransitionStyle.coverVertical
+        
+        /*
+         */
+        self.present(uvc, animated: true)
+    }
+    
 }
 
