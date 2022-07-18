@@ -116,7 +116,7 @@ class ViewController: UIViewController {
          */
         let uvc = self.storyboard!.instantiateViewController(withIdentifier: "SecoundVC")
         
-        /*
+        /* [22.07.18] 화면전환의 스타일을 설정하는 부분이다
          */
         uvc.modalTransitionStyle = UIModalTransitionStyle.coverVertical
         
